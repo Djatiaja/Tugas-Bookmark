@@ -48,7 +48,6 @@ class MainActivity : AppCompatActivity() {
 
                             val item = adapter.getItem(position)
 
-                            bookmark(item.id,item.bookmark)
                         }
                     }
                     return false
@@ -97,6 +96,7 @@ class MainActivity : AppCompatActivity() {
         executorService.execute {
             postDao.insert(post)
         }
+
     }
 
     fun hapusDataTable(){

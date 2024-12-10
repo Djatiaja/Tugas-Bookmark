@@ -7,8 +7,10 @@ import androidx.recyclerview.widget.RecyclerView.RecyclerListener
 import com.example.localdatabase.database.Post
 import com.example.tugasbookmark.Dao.PostDao
 import com.example.tugasbookmark.R
+import com.example.tugasbookmark.database.PostDatabase
 import com.example.tugasbookmark.databinding.ItemPostBinding
 import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 class PostAdapter(
     private val posts:List<Post>,
@@ -16,6 +18,18 @@ class PostAdapter(
 
     inner class ItemPost(
         private val binding: ItemPostBinding):RecyclerView.ViewHolder(binding.root){
+        lateinit var postDao:PostDao;
+        lateinit var executorService:ExecutorService;
+
+
+
+        init {
+            executorService = Executors.newSingleThreadExecutor()
+            val database = PostDatabase.getDatabase(binding.root.context)
+            postDao = database!!.postDao()!!
+            executorService = Executors.newSingleThreadExecutor()
+        }
+
         fun bind(data:Post){
             with(binding){
                 id.text = data.id.toString()
@@ -26,6 +40,21 @@ class PostAdapter(
                     imageBookmark.setBackgroundResource(R.drawable.baseline_bookmark_24)
                 }else{
                     imageBookmark.setBackgroundResource(R.drawable.baseline_bookmark_border_24)
+                }
+                imageBookmark.setOnClickListener {
+                    bookmark(data.id, data.bookmark)
+                }
+            }
+        }
+        fun bookmark(id:Int, bookmark:Boolean){
+
+            if (!bookmark){
+                executorService.execute {
+                    postDao.bookmarking(id)
+                }
+            } else{
+                executorService.execute {
+                    postDao.unbookmarking(id)
                 }
             }
         }
